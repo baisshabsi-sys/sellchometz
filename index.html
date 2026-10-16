@@ -8,7 +8,7 @@
 <meta name="theme-color" content="#1f4e79">
 <link rel="apple-touch-icon" href="icons/icon-192.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<script src="config.js?v=4"></script>
+<script src="config.js?v=5"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Frank+Ruhl+Libre:wght@500;700&display=swap" rel="stylesheet">
 <style>
@@ -39,7 +39,9 @@ textarea{min-height:70px;resize:vertical}
 .chip input:checked+span{background:var(--pri);border-color:var(--pri);color:#fff}
 .chip input:focus-visible+span{box-shadow:0 0 0 3px #2f6fa855}
 .opt{display:flex;gap:12px;align-items:flex-start;padding:12px;border:1.5px solid var(--line);border-radius:12px;margin-bottom:8px;cursor:pointer;background:#fcfbf8}
-.opt input{margin-top:3px;width:18px;height:18px;accent-color:var(--pri)}
+.opt>input[type=checkbox],.opt>input[type=radio]{margin-top:3px;width:20px;height:20px;flex:0 0 20px;accent-color:var(--pri)}
+.opt input[type=text],.reveal input,.reveal textarea{display:block;width:100%;min-height:46px;font-size:16px;pointer-events:auto}
+.reveal{margin:6px 0 10px 0}
 .opt.on{border-color:var(--pri2);background:#eef4fa}
 .opt .t{font-size:15px}.opt .d{font-size:12.5px;color:var(--mute);margin-top:2px}
 .reveal{margin:6px 0 4px 30px}
@@ -104,8 +106,8 @@ table.adm th{font-size:12px;color:var(--mute);text-transform:uppercase;letter-sp
 <div class="navbar hidden" id="navbar"><div class="in" id="navin"></div></div>
 <div class="modal" id="modal" onclick="if(event.target===this)closeModal()"><div class="box" id="modalBox"></div></div>
 <div class="toast" id="toast"></div>
-<footer class="noprint" style="text-align:center;color:#9ca3af;font-size:12px;padding:8px 0 90px">SellChometz <b id="appver">v4 (2026-10-16)</b> · <a href="#" style="color:#9ca3af" onclick="resetApp();return false">Reset app</a></footer>
-<script>window.APP_VERSION="v4";async function resetApp(){try{const rs=await navigator.serviceWorker.getRegistrations();await Promise.all(rs.map(r=>r.unregister()));const ks=await caches.keys();await Promise.all(ks.map(k=>caches.delete(k)))}catch(e){}sessionStorage.clear();location.replace(location.pathname+"?r="+Date.now())}</script>
+<footer class="noprint" style="text-align:center;color:#9ca3af;font-size:12px;padding:8px 0 90px">SellChometz <b id="appver">v5 (2026-10-16)</b> · <a href="#" style="color:#9ca3af" onclick="resetApp();return false">Reset app</a></footer>
+<script>window.APP_VERSION="v5";async function resetApp(){try{const rs=await navigator.serviceWorker.getRegistrations();await Promise.all(rs.map(r=>r.unregister()));const ks=await caches.keys();await Promise.all(ks.map(k=>caches.delete(k)))}catch(e){}sessionStorage.clear();location.replace(location.pathname+"?r="+Date.now())}</script>
 
 <script>
 /* ===================== Data definitions (from original SellChometz APK) ===================== */
@@ -201,7 +203,7 @@ function S0(){$("#pane").innerHTML=`<h2>My Info</h2><p class="sub">Your e-mail i
 function S1(){$("#pane").innerHTML=`<h2>Places</h2><p class="sub">The chometz on my property can be found primarily in these places:</p>${chips(PLACES,"places")}
  <label class="f" style="margin-top:14px">Other places at home<input type="text" data-k="placeOther" value="${esc(F.placeOther)}" placeholder="e.g. playroom, dining room hutch"></label>`}
 function S2(){$("#pane").innerHTML=`<h2>More Places</h2><p class="sub"><b>Additional locations other than your home.</b> Check any that apply and enter the address.</p>
- ${MORE.map(([k,l])=>{const on=!!F.more[k];return`<div class="opt ${on?'on':''}" onclick="if(event.target.tagName!=='INPUT')this.querySelector('input').click()"><input type="checkbox" data-more="${k}" ${on?"checked":""}><div style="flex:1"><div class="t">${l}</div>${on?`<input type="text" data-moreaddr="${k}" placeholder="Address" value="${esc(F.more[k]||"")}" style="margin-top:8px" onclick="event.stopPropagation()">`:""}</div></div>`}).join("")}
+ ${MORE.map(([k,l])=>{const on=!!F.more[k];return`<div class="opt ${on?'on':''}" onclick="if(event.target.tagName!=='INPUT')this.querySelector('input').click()"><input type="checkbox" data-more="${k}" ${on?"checked":""}><div style="flex:1"><div class="t">${l}</div>${on?`<input type="text" data-moreaddr="${k}" placeholder="Address" aria-label="${l} address" value="${esc(F.more[k]||"")}" style="margin-top:8px" onclick="event.stopPropagation()">`:""}</div></div>`}).join("")}
  <label class="f" style="margin-top:6px">Other (description and address)<input type="text" data-k="moreOther" value="${esc(F.moreOther)}"></label>
  <h3>Travel ${hb('zone')}</h3>
  <div class="opt ${F.zone?'on':''}" onclick="if(event.target.tagName!=='INPUT')this.querySelector('input').click()"><input type="checkbox" data-bool="zone" ${F.zone?"checked":""}><div><div class="t">I am selling chometz outside of this time zone</div><div class="d">This requires the earliest Mechira.</div></div></div>`}
@@ -233,12 +235,12 @@ function S5(){$("#pane").innerHTML=`<h2>Review &amp; Sign</h2><p class="sub">Ple
 function bind(){
  document.querySelectorAll("[data-k]").forEach(e=>e.oninput=()=>{F[e.dataset.k]=e.value});
  document.querySelectorAll("[data-arr]").forEach(e=>e.onchange=()=>{const a=F[e.dataset.arr];e.checked?a.push(e.value):a.splice(a.indexOf(e.value),1)});
- document.querySelectorAll("[data-bool]").forEach(e=>e.onchange=()=>{F[e.dataset.bool]=e.checked;if(e.dataset.bool==="home"&&e.checked){F.keys=false;F.comb=false}if((e.dataset.bool==="keys"||e.dataset.bool==="comb")&&e.checked)F.home=false;rerender()});
- document.querySelectorAll("[data-radio]").forEach(e=>e.onchange=()=>{if(F.bedika!==e.value)F.bedikaText="";F.bedika=e.value;rerender()});
- document.querySelectorAll("[data-more]").forEach(e=>e.onchange=()=>{const k=e.dataset.more;if(e.checked)F.more[k]=F.more[k]||" ";else delete F.more[k];rerender();const a=document.querySelector(`[data-moreaddr="${k}"]`);if(a){a.value=a.value.trim();a.focus()}});
+ document.querySelectorAll("[data-bool]").forEach(e=>e.onchange=()=>{F[e.dataset.bool]=e.checked;if(e.dataset.bool==="home"&&e.checked){F.keys=false;F.comb=false}if((e.dataset.bool==="keys"||e.dataset.bool==="comb")&&e.checked)F.home=false;rerender(e.checked?({keys:'[data-k="keyPlace"]',comb:'[data-k="combo"]'})[e.dataset.bool]:null)});
+ document.querySelectorAll("[data-radio]").forEach(e=>e.onchange=()=>{if(F.bedika!==e.value)F.bedikaText="";F.bedika=e.value;rerender(e.value!=="full"?'[data-k="bedikaText"]':null)});
+ document.querySelectorAll("[data-more]").forEach(e=>e.onchange=()=>{const k=e.dataset.more;if(e.checked)F.more[k]=(F.more[k]||"").trim()||" ";else delete F.more[k];rerender(e.checked?`[data-moreaddr="${k}"]`:null);const a=document.querySelector(`[data-moreaddr="${k}"]`);if(a&&!a.value.trim())a.value=""});
  document.querySelectorAll("[data-moreaddr]").forEach(e=>e.oninput=()=>{F.more[e.dataset.moreaddr]=e.value});
 }
-function rerender(){const y=window.scrollY;const s=F.sig;Form();window.scrollTo(0,y)}
+function rerender(focusSel){const y=window.scrollY;Form();window.scrollTo(0,y);if(focusSel){const el=document.querySelector(focusSel);if(el){el.focus({preventScroll:true});el.scrollIntoView({block:"center"})}}}
 
 /* ---- validation (mirrors original toasts) ---- */
 function validate(s){
