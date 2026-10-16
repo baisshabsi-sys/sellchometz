@@ -93,6 +93,32 @@ table.adm th{font-size:12px;color:var(--mute);text-transform:uppercase;letter-sp
   .shtar{border:0;padding:0;font-size:11.5px;background:#fff}
   .printpage{page-break-after:always}.printpage:last-child{page-break-after:auto}
 }
+
+/* ---- responsive (v5) ---- */
+html,body{overflow-x:hidden;max-width:100%}
+img,canvas{max-width:100%}
+.btn{min-height:44px}.btn.sm{min-height:40px}
+.chip span{min-height:44px;display:inline-flex;align-items:center}
+.steps button{min-height:44px}
+.help{width:32px;height:32px}
+.opt{min-height:48px}
+.iconbtn{min-height:40px}
+input,select,textarea{font-size:16px!important}
+@media(min-width:1024px){main{max-width:880px;padding-top:28px}.card{padding:26px 30px}}
+@media(min-width:1600px){main{max-width:960px}}
+@media(max-width:420px){main{padding:12px 10px 120px}.card{padding:16px}.shtar{padding:18px 14px;font-size:12.5px}.shtar .ttl{font-size:17px}.shtar .ttl .he{font-size:20px}header.top h1{font-size:15px}header.top small{font-size:11px}}
+@media(max-height:500px) and (orientation:landscape){header.top{position:static}.sigpad{height:140px}}
+.shtar{overflow-wrap:anywhere}
+/* admin table -> cards on small screens */
+@media(max-width:640px){
+ table.adm thead{display:none}
+ table.adm,table.adm tbody,table.adm tr,table.adm td{display:block;width:100%}
+ table.adm tr{border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin-bottom:10px;background:#fcfbf8}
+ table.adm td{border:0;padding:3px 0}
+ table.adm td.row{justify-content:flex-start;padding-top:8px}
+}
+@page{size:letter;margin:0.6in}
+@media print{html,body{overflow:visible}footer{display:none!important}.shtar{font-size:11pt;line-height:1.45}.shtar .sigimg img{max-height:60px}}
 </style>
 </head>
 <body>
@@ -266,6 +292,7 @@ function setupSig(){const c=$("#sig"),r=window.devicePixelRatio||1;const w=c.cli
  c.onpointerdown=e=>{d=true;c.setPointerCapture(e.pointerId);[lx,ly]=p(e);x.beginPath();x.arc(lx,ly,1,0,7);x.fill()};
  c.onpointermove=e=>{if(!d)return;const[nx,ny]=p(e);x.beginPath();x.moveTo(lx,ly);x.lineTo(nx,ny);x.stroke();lx=nx;ly=ny};
  c.onpointerup=c.onpointercancel=()=>{if(d){d=false;F.sig=c.toDataURL("image/png")}}}
+let _rsT;window.addEventListener("resize",()=>{clearTimeout(_rsT);_rsT=setTimeout(()=>{if(document.getElementById("sig"))setupSig()},150)});
 function clearSig(){F.sig="";const c=$("#sig");c.getContext("2d").clearRect(0,0,c.width,c.height)}
 
 /* ===================== Shtar ===================== */
