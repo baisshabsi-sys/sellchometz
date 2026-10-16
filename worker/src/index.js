@@ -36,7 +36,7 @@ export default{async fetch(req,env){
   // any year: newest first
   // The 2018-19 server stripped the domain suffix (".com") from usernames, e.g. name@gmail. Match both forms.
   const v=new Set([ident]);if(ident.includes("@")){const [u,dom]=ident.split("@");v.add(u+"@"+dom.split(".")[0]);if(!dom.includes("."))v.add(ident+".com")}
-  const vs=[...v];const rows=ident?(await env.DB.prepare(`SELECT id,data FROM submissions WHERE email_norm IN (${vs.map(()=>"?").join(",")}) ORDER BY ts DESC`).bind(...vs).all()).results
+  const vs=[...v];const pre=(ident.includes("@")&&!ident.split("@")[1].includes("."))?ident+".%":"\u0000";const rows=ident?(await env.DB.prepare(`SELECT id,data FROM submissions WHERE email_norm IN (${vs.map(()=>"?").join(",")}) OR email_norm LIKE ? ORDER BY ts DESC`).bind(...vs,pre).all()).results
                   :(await env.DB.prepare("SELECT id,data FROM submissions ORDER BY ts DESC").all()).results;
   const ok=rows.find(r=>{const d=JSON.parse(r.data);const lastOk=lastL&&loose(d.last)===lastL;const phOk=ph.length>=7&&digits(d.phone).slice(-7)===ph.slice(-7);
     return ident?(lastOk||phOk||(!loose(d.last)&&phOk)):(lastOk&&phOk)});
