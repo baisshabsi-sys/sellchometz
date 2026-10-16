@@ -121,7 +121,7 @@ const HELP={
 
 /* ===================== Storage ===================== */
 const LS={get:(k,d)=>{try{return JSON.parse(localStorage.getItem(k))??d}catch(e){return d}},set:(k,v)=>localStorage.setItem(k,JSON.stringify(v))};
-const defaultSettings={rabbi:"Rabbi Yaakov Kaplan",shul:"Bais Shabsi",shulEmail:"baisshabsi@gmail.com",pin:"7323646571",deadline:"",donation:"",showHebrew:true};
+const defaultSettings={rabbi:"Rabbi Yaakov Kaplan",shul:"Bais Shabsi",shulEmail:"baisshabsi@gmail.com",pin:"",deadline:"",donation:"",showHebrew:true};
 let settings=Object.assign({},defaultSettings,LS.get("mc_settings",{}));
 let records=()=>LS.get("mc_records",[]);
 let saveRecords=r=>LS.set("mc_records",r);
