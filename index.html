@@ -8,7 +8,7 @@
 <meta name="theme-color" content="#1f4e79">
 <link rel="apple-touch-icon" href="icons/icon-192.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<script src="config.js"></script>
+<script src="config.js?v=3"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Frank+Ruhl+Libre:wght@500;700&display=swap" rel="stylesheet">
 <style>
@@ -161,7 +161,7 @@ function Home(){
   ${settings.deadline?`<p class="pill early" style="margin-bottom:18px">Deadline: ${esc(settings.deadline)}</p>`:""}
   <div class="actions">
    <button class="btn block" style="padding:17px;font-size:17px" onclick="startNew()">Start new form →</button>
-   <button class="btn ghost block" onclick="screen='lookup';render()">↺ Use last year's info</button>
+   <button class="btn ghost block" onclick="screen='lookup';render()">↺ Use my info from a previous year</button>
   </div>
   <button class="linkish" onclick="screen=adminOK?'admin':'pin';render()">Shul / Rabbi use only</button>
  </div>
@@ -368,14 +368,22 @@ records=function(){return CACHE};
 saveRecords=function(){};
 (async()=>{try{Object.assign(settings,await api("/api/settings"));hdr();if(screen==="home")render()}catch(e){console.warn(e)}})();
 Lookup=function(){
- $("#app").innerHTML=`<div class="card"><h2>Welcome back!</h2><p class="sub">Enter the e-mail (or username) you used last time and your last name to load your information.</p>
- <div class="grid"><label class="f">E-mail / username<input type="text" id="lk" autocomplete="email"></label><label class="f">Last name<input type="text" id="lkl" autocomplete="family-name"></label></div>
- <div class="row" style="margin-top:14px"><button class="btn" id="lkb" onclick="doLookup()">Find my info</button><button class="btn ghost" onclick="goHome()">Cancel</button></div></div>`;
- $("#lk").focus();$("#lkl").onkeydown=e=>{if(e.key==="Enter")doLookup()}};
-doLookup=async function(){const email=$("#lk").value.trim(),last=$("#lkl").value.trim();if(!email||!last){toast("Enter e-mail and last name");return}
- $("#lkb").disabled=true;try{const d=await api("/api/lookup",{method:"POST",body:{email,last}});EDIT_TOKEN=d.token;
-  F=Object.assign(blank(),d.record,{id:"",sig:"",kinyan:false,date:"",year:""});step=0;screen="form";toast("Welcome back "+(d.record.first||"")+"! Please review each page.");render()}
- catch(e){toast(e.message==="Not found"?"Not found. Check spelling or start a new form.":e.message);$("#lkb").disabled=false}};
+ $("#app").innerHTML=`<div class="card"><h2>Use my info from a previous year</h2><p class="sub">We'll find your most recent form (any year, including 2018 and 2019). Enter the <b>e-mail or username</b> you used before and your <b>last name</b>. Capital letters and spaces don't matter.</p>
+ <div class="grid"><label class="f full">E-mail or username<input type="text" id="lk" autocomplete="username" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="e.g. name@gmail.com"></label>
+ <label class="f">Last name<input type="text" id="lkl" autocomplete="family-name"></label>
+ <label class="f">Phone <span class="muted">(optional; helps if you forgot your username)</span><input type="tel" id="lkp" inputmode="tel" autocomplete="tel"></label></div>
+ <p class="muted" style="margin:10px 0 0">Forgot the e-mail/username? Leave it blank and enter your last name <b>and</b> phone number.</p>
+ <div class="row" style="margin-top:14px"><button class="btn" id="lkb" onclick="doLookup()">Find my info</button><button class="btn ghost" onclick="goHome()">Cancel</button></div>
+ <div id="lkmsg" class="muted" style="margin-top:10px"></div></div>`;
+ $("#lk").focus();["#lk","#lkl","#lkp"].forEach(i=>$(i).onkeydown=e=>{if(e.key==="Enter")doLookup()})};
+doLookup=async function(){const email=$("#lk").value.trim(),last=$("#lkl").value.trim(),phone=$("#lkp").value.trim();
+ const msg=$("#lkmsg");
+ if(!email&&!(last&&phone)){msg.textContent="Enter your e-mail/username and last name, or your last name and phone.";return}
+ if(email&&!last&&!phone){msg.textContent="Please also enter your last name (or phone) so we can verify it's you.";return}
+ $("#lkb").disabled=true;$("#lkb").textContent="Searching…";msg.textContent="";
+ try{const d=await api("/api/lookup",{method:"POST",body:{email,last,phone}});EDIT_TOKEN=d.token;
+  F=Object.assign(blank(),d.record,{id:"",sig:"",kinyan:false,date:"",year:""});step=0;screen="form";toast(`Welcome back ${d.record.first||""}! Loaded your ${d.record.year||""} info. Please review each page.`);render()}
+ catch(e){msg.innerHTML=e.message==="Not found"?"We couldn't find a match. Check the spelling, try your phone number instead, or <a href='#' onclick='startNew();return false'>start a new form</a>.":esc(e.message);$("#lkb").disabled=false;$("#lkb").textContent="Find my info"}};
 const _blank=blank;startNew=function(){EDIT_TOKEN=null;F=blank();step=0;screen="form";render()};
 submitForm=async function(){const e=validate(5);if(e){toast(e);return}
  F.date=today();F.year=pesachYear();const btn=document.querySelector("#navin .gold");if(btn){btn.disabled=true;btn.textContent="Submitting…"}
@@ -384,9 +392,9 @@ submitForm=async function(){const e=validate(5);if(e){toast(e);return}
 newUser=function(){EDIT_TOKEN=null;F=blank();step=0;screen="home";render()};
 goHome=function(){if(screen==="form"&&(F.first||F.email)&&!confirm("Leave and clear this form? (Nothing will be saved.)"))return;EDIT_TOKEN=null;F=blank();step=0;screen=adminTok()&&screen==="admin"?"home":"home";render()};
 Pin=function(){$("#app").innerHTML=`<div class="card"><h2>Shul / Rabbi sign-in</h2><p class="sub">Admin password (verified on the server).</p>
- <label class="f">Password<input type="password" id="pin" autocomplete="current-password"></label><div class="row" style="margin-top:14px"><button class="btn dark" onclick="chkPin()">Sign in</button><button class="btn ghost" onclick="goHome()">Cancel</button></div></div>`;
+ <label class="f">Password<input type="password" id="pin" autocomplete="current-password" autocapitalize="off" autocorrect="off" spellcheck="false"></label><label class="muted" style="display:flex;gap:6px;align-items:center;margin-top:6px"><input type="checkbox" onchange="$('#pin').type=this.checked?'text':'password'"> Show password</label><div class="row" style="margin-top:14px"><button class="btn dark" onclick="chkPin()">Sign in</button><button class="btn ghost" onclick="goHome()">Cancel</button></div></div>`;
  $("#pin").focus();$("#pin").onkeydown=e=>{if(e.key==="Enter")chkPin()}};
-chkPin=async function(){try{const d=await api("/api/admin/login",{method:"POST",body:{password:$("#pin").value}});sessionStorage.setItem("mc_admin_tok",d.token);adminOK=true;screen="admin";render()}catch(e){toast(e.message)}};
+chkPin=async function(){try{const d=await api("/api/admin/login",{method:"POST",body:{password:$("#pin").value.trim()}});sessionStorage.setItem("mc_admin_tok",d.token);adminOK=true;screen="admin";render()}catch(e){toast(e.message)}};
 const _Admin=Admin;
 Admin=function(){if(!adminTok()){screen="pin";return Pin()}_Admin();const pin=document.getElementById("s_pin");if(pin)pin.closest("label").remove();
  const so=[...document.querySelectorAll("button")].find(b=>b.textContent==="Sign out");if(so)so.onclick=()=>{sessionStorage.removeItem("mc_admin_tok");adminOK=false;CACHE=[];goHome()};
@@ -398,7 +406,7 @@ saveSettings=async function(){["rabbi","shul","shulEmail","deadline","donation"]
 delRec=async function(id){if(!confirm("Delete this submission permanently from the shared database?"))return;try{await api("/api/admin/records/"+encodeURIComponent(id),{method:"DELETE",admin:true});CACHE=CACHE.filter(r=>r.id!==id);Admin()}catch(e){toast(e.message)}};
 viewRec=function(id){const r=CACHE.find(x=>x.id===id);F=Object.assign(blank(),r);screen="done";_render();const b=[...document.querySelectorAll("button")].find(x=>x.textContent.includes("Edit"));if(b)b.remove();const n=[...document.querySelectorAll("button")].find(x=>x.textContent.includes("New user"));if(n){n.textContent="← Back to admin";n.onclick=()=>{screen="admin";render()}}};
 importJSON=function(inp){const f=inp.files[0];if(!f)return;f.text().then(async t=>{const d=JSON.parse(t);const r=await api("/api/admin/import",{method:"POST",admin:true,body:{records:d.records||d}});toast(`Imported ${r.imported} record(s)`);loadAdmin()}).catch(e=>toast("Import failed: "+e.message))};
-if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));
+if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js",{updateViaCache:"none"}).then(r=>r.update()).catch(()=>{}));
 
 render();
 </script>

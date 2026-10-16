@@ -1,5 +1,7 @@
 // SellChometz API — Cloudflare Worker + D1. Secrets: ADMIN_PASSWORD, SESSION_SECRET
 const enc=new TextEncoder();
+const loose=s=>String(s??"").toLowerCase().replace(/[^a-z0-9\u0590-\u05ff]/g,"");
+const digits=s=>String(s??"").replace(/\D/g,"");
 const norm=s=>String(s??"").trim().toLowerCase().replace(/\s+/g," ");
 const b64u=b=>btoa(String.fromCharCode(...new Uint8Array(b))).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");
 async function hmac(env,msg){const k=await crypto.subtle.importKey("raw",enc.encode(env.SESSION_SECRET),{name:"HMAC",hash:"SHA-256"},false,["sign"]);return b64u(await crypto.subtle.sign("HMAC",k,enc.encode(msg)))}
@@ -23,12 +25,21 @@ export default{async fetch(req,env){
  try{
  if(p==="/api/settings"&&req.method==="GET"){const s=await getSettings(env);return J(h,Object.fromEntries(PUBLIC_SETTINGS.map(k=>[k,s[k]])))}
  if(p==="/api/lookup"&&req.method==="POST"){
-  if(await limited(env,ip,"lookup",10,15*60000))return J(h,{error:"Too many attempts. Please try again later."},429);
-  const {email,last}=await req.json();if(!norm(email)||!norm(last))return J(h,{error:"Email and last name required"},400);
-  const r=await env.DB.prepare("SELECT id,data FROM submissions WHERE email_norm=? AND last_norm=? ORDER BY ts DESC LIMIT 1").bind(norm(email),norm(last)).first();
-  if(!r)return J(h,{error:"Not found"},404);
-  const d=JSON.parse(r.data);delete d.sig;delete d.kinyan;
-  return J(h,{record:d,token:await sign(env,"edit",r.id,2*3600000)})}
+  const b=await req.json().catch(()=>({}));
+  const ident=norm(b.email),lastL=loose(b.last),ph=digits(b.phone);
+  if(!ident&&!(lastL&&ph.length>=7))return J(h,{error:"Enter your e-mail/username and last name (or your last name and phone number)."},400);
+  if(!lastL&&ph.length<7)return J(h,{error:"Please also enter your last name or phone number to verify it's you."},400);
+  const rec=await env.DB.prepare("SELECT COUNT(*) c FROM attempts WHERE ip=? AND kind='lookupfail' AND ts>?").bind(ip,Date.now()-15*60000).first();
+  if(rec.c>=20)return J(h,{error:"Too many unsuccessful tries. Please wait 15 minutes or ask the Rav for help."},429);
+  // any year: newest first
+  const rows=ident?(await env.DB.prepare("SELECT id,data FROM submissions WHERE email_norm=? ORDER BY ts DESC").bind(ident).all()).results
+                  :(await env.DB.prepare("SELECT id,data FROM submissions ORDER BY ts DESC").all()).results;
+  const ok=rows.find(r=>{const d=JSON.parse(r.data);const lastOk=lastL&&loose(d.last)===lastL;const phOk=ph.length>=7&&digits(d.phone).slice(-7)===ph.slice(-7);
+    return ident?(lastOk||phOk||(!loose(d.last)&&phOk)):(lastOk&&phOk)});
+  if(!ok){await env.DB.prepare("INSERT INTO attempts(ip,kind,ts) VALUES(?,?,?)").bind(ip,"lookupfail",Date.now()).run();
+    return J(h,{error:"Not found"},404)}
+  const d=JSON.parse(ok.data);delete d.sig;delete d.kinyan;
+  return J(h,{record:d,token:await sign(env,"edit",ok.id,2*3600000)})}
  if(p==="/api/submit"&&req.method==="POST"){
   if(await limited(env,ip,"submit",30,15*60000))return J(h,{error:"Too many submissions. Please try again later."},429);
   const body=await req.json();const rec=clean(body.record||{});
@@ -43,8 +54,12 @@ export default{async fetch(req,env){
   await env.DB.prepare("INSERT INTO submissions(id,email_norm,last_norm,year,ts,data,imported) VALUES(?,?,?,?,?,?,0) ON CONFLICT(id) DO UPDATE SET email_norm=excluded.email_norm,last_norm=excluded.last_norm,year=excluded.year,ts=excluded.ts,data=excluded.data").bind(id,norm(rec.email),norm(rec.last),rec.year,ts,JSON.stringify(rec)).run();
   return J(h,{id,token:await sign(env,"edit",id,2*3600000)})}
  if(p==="/api/admin/login"&&req.method==="POST"){
-  if(await limited(env,ip,"login",8,15*60000))return J(h,{error:"Too many attempts. Try again in 15 minutes."},429);
-  const {password}=await req.json();if(!safeEq(password||"",env.ADMIN_PASSWORD))return J(h,{error:"Incorrect password"},401);
+  const f=await env.DB.prepare("SELECT COUNT(*) c FROM attempts WHERE ip=? AND kind='loginfail' AND ts>?").bind(ip,Date.now()-15*60000).first();
+  if(f.c>=10)return J(h,{error:"Locked out after too many wrong passwords. Please wait 15 minutes and try again.",locked:true},429);
+  const {password}=await req.json().catch(()=>({}));
+  if(!safeEq(String(password||"").trim(),String(env.ADMIN_PASSWORD).trim())){await env.DB.prepare("INSERT INTO attempts(ip,kind,ts) VALUES(?,?,?)").bind(ip,"loginfail",Date.now()).run();
+   const left=Math.max(0,9-f.c);return J(h,{error:left?`Incorrect password (${left} tr${left===1?"y":"ies"} left before a 15-minute lockout).`:"Incorrect password. Locked out for 15 minutes."},401)}
+  await env.DB.prepare("DELETE FROM attempts WHERE ip=? AND kind='loginfail'").bind(ip).run();
   return J(h,{token:await sign(env,"admin","admin",12*3600000)})}
  if(p.startsWith("/api/admin/")){
   if(!(await isAdmin(env,req)))return J(h,{error:"Unauthorized"},401);
