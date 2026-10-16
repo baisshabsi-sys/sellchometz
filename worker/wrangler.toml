@@ -9,4 +9,6 @@ ALLOWED_ORIGINS = "https://baisshabsi-sys.github.io,http://localhost:8080,http:/
 [[d1_databases]]
 binding = "DB"
 database_name = "sellchometz"
-database_id = "00000000-0000-0000-0000-000000000000"
+database_id = "4b378d9d-edd9-46dd-8d25-fb9ff2d7f6ce"
+workers_dev = true
+preview_urls = false
