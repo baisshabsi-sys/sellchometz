@@ -34,7 +34,9 @@ export default{async fetch(req,env){
   const rec=await env.DB.prepare("SELECT COUNT(*) c FROM attempts WHERE ip=? AND kind='lookupfail' AND ts>?").bind(ip,Date.now()-15*60000).first();
   if(rec.c>=20)return J(h,{error:"Too many unsuccessful tries. Please wait 15 minutes or ask the Rav for help."},429);
   // any year: newest first
-  const rows=ident?(await env.DB.prepare("SELECT id,data FROM submissions WHERE email_norm=? ORDER BY ts DESC").bind(ident).all()).results
+  // The 2018-19 server stripped the domain suffix (".com") from usernames, e.g. name@gmail. Match both forms.
+  const v=new Set([ident]);if(ident.includes("@")){const [u,dom]=ident.split("@");v.add(u+"@"+dom.split(".")[0]);if(!dom.includes("."))v.add(ident+".com")}
+  const vs=[...v];const rows=ident?(await env.DB.prepare(`SELECT id,data FROM submissions WHERE email_norm IN (${vs.map(()=>"?").join(",")}) ORDER BY ts DESC`).bind(...vs).all()).results
                   :(await env.DB.prepare("SELECT id,data FROM submissions ORDER BY ts DESC").all()).results;
   const ok=rows.find(r=>{const d=JSON.parse(r.data);const lastOk=lastL&&loose(d.last)===lastL;const phOk=ph.length>=7&&digits(d.phone).slice(-7)===ph.slice(-7);
     return ident?(lastOk||phOk||(!loose(d.last)&&phOk)):(lastOk&&phOk)});
