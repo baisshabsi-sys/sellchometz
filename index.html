@@ -8,7 +8,7 @@
 <meta name="theme-color" content="#1f4e79">
 <link rel="apple-touch-icon" href="icons/icon-192.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<script src="config.js?v=3"></script>
+<script src="config.js?v=4"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Frank+Ruhl+Libre:wght@500;700&display=swap" rel="stylesheet">
 <style>
@@ -104,6 +104,8 @@ table.adm th{font-size:12px;color:var(--mute);text-transform:uppercase;letter-sp
 <div class="navbar hidden" id="navbar"><div class="in" id="navin"></div></div>
 <div class="modal" id="modal" onclick="if(event.target===this)closeModal()"><div class="box" id="modalBox"></div></div>
 <div class="toast" id="toast"></div>
+<footer class="noprint" style="text-align:center;color:#9ca3af;font-size:12px;padding:8px 0 90px">SellChometz <b id="appver">v4 (2026-10-16)</b> · <a href="#" style="color:#9ca3af" onclick="resetApp();return false">Reset app</a></footer>
+<script>window.APP_VERSION="v4";async function resetApp(){try{const rs=await navigator.serviceWorker.getRegistrations();await Promise.all(rs.map(r=>r.unregister()));const ks=await caches.keys();await Promise.all(ks.map(k=>caches.delete(k)))}catch(e){}sessionStorage.clear();location.replace(location.pathname+"?r="+Date.now())}</script>
 
 <script>
 /* ===================== Data definitions (from original SellChometz APK) ===================== */

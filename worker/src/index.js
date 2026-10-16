@@ -2,6 +2,8 @@
 const enc=new TextEncoder();
 const loose=s=>String(s??"").toLowerCase().replace(/[^a-z0-9\u0590-\u05ff]/g,"");
 const digits=s=>String(s??"").replace(/\D/g,"");
+const canon=s=>String(s??"").normalize("NFKC").replace(/[\u2018\u2019\u201A\u201B\u2032]/g,"'").replace(/[\u201C\u201D\u201E\u2033]/g,'"').replace(/[\u2010-\u2015]/g,"-").replace(/[\u00A0\u200B-\u200D\uFEFF]/g," ").trim();
+async function diag(env,kind,info){try{await env.DB.prepare("CREATE TABLE IF NOT EXISTS diag(ts INTEGER, kind TEXT, info TEXT)").run();await env.DB.prepare("INSERT INTO diag VALUES(?,?,?)").bind(Date.now(),kind,JSON.stringify(info)).run()}catch(e){}}
 const norm=s=>String(s??"").trim().toLowerCase().replace(/\s+/g," ");
 const b64u=b=>btoa(String.fromCharCode(...new Uint8Array(b))).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");
 async function hmac(env,msg){const k=await crypto.subtle.importKey("raw",enc.encode(env.SESSION_SECRET),{name:"HMAC",hash:"SHA-256"},false,["sign"]);return b64u(await crypto.subtle.sign("HMAC",k,enc.encode(msg)))}
@@ -26,7 +28,7 @@ export default{async fetch(req,env){
  if(p==="/api/settings"&&req.method==="GET"){const s=await getSettings(env);return J(h,Object.fromEntries(PUBLIC_SETTINGS.map(k=>[k,s[k]])))}
  if(p==="/api/lookup"&&req.method==="POST"){
   const b=await req.json().catch(()=>({}));
-  const ident=norm(b.email),lastL=loose(b.last),ph=digits(b.phone);
+  const ident=norm(canon(b.email)),lastL=loose(canon(b.last)),ph=digits(b.phone);
   if(!ident&&!(lastL&&ph.length>=7))return J(h,{error:"Enter your e-mail/username and last name (or your last name and phone number)."},400);
   if(!lastL&&ph.length<7)return J(h,{error:"Please also enter your last name or phone number to verify it's you."},400);
   const rec=await env.DB.prepare("SELECT COUNT(*) c FROM attempts WHERE ip=? AND kind='lookupfail' AND ts>?").bind(ip,Date.now()-15*60000).first();
@@ -37,6 +39,8 @@ export default{async fetch(req,env){
   const ok=rows.find(r=>{const d=JSON.parse(r.data);const lastOk=lastL&&loose(d.last)===lastL;const phOk=ph.length>=7&&digits(d.phone).slice(-7)===ph.slice(-7);
     return ident?(lastOk||phOk||(!loose(d.last)&&phOk)):(lastOk&&phOk)});
   if(!ok){await env.DB.prepare("INSERT INTO attempts(ip,kind,ts) VALUES(?,?,?)").bind(ip,"lookupfail",Date.now()).run();
+    let lastExists=false;if(lastL){const all=(await env.DB.prepare("SELECT data FROM submissions").all()).results;lastExists=all.some(r=>loose(JSON.parse(r.data).last)===lastL)}
+    await diag(env,"lookupfail",{identGiven:!!ident,identHasAt:ident.includes("@"),identFoundRows:ident?rows.length:null,lastGiven:!!lastL,lastExistsAnywhere:lastExists,phoneDigits:ph.length});
     return J(h,{error:"Not found"},404)}
   const d=JSON.parse(ok.data);delete d.sig;delete d.kinyan;
   return J(h,{record:d,token:await sign(env,"edit",ok.id,2*3600000)})}
@@ -57,7 +61,8 @@ export default{async fetch(req,env){
   const f=await env.DB.prepare("SELECT COUNT(*) c FROM attempts WHERE ip=? AND kind='loginfail' AND ts>?").bind(ip,Date.now()-15*60000).first();
   if(f.c>=10)return J(h,{error:"Locked out after too many wrong passwords. Please wait 15 minutes and try again.",locked:true},429);
   const {password}=await req.json().catch(()=>({}));
-  if(!safeEq(String(password||"").trim(),String(env.ADMIN_PASSWORD).trim())){await env.DB.prepare("INSERT INTO attempts(ip,kind,ts) VALUES(?,?,?)").bind(ip,"loginfail",Date.now()).run();
+  const typed=canon(password),real=canon(env.ADMIN_PASSWORD);
+  if(!safeEq(typed,real)){await diag(env,"loginfail",{typedLen:typed.length,realLen:real.length,caseInsensitiveMatch:typed.toLowerCase()===real.toLowerCase(),rawHadNonAscii:/[^\x20-\x7e]/.test(String(password||"")),secretHadOuterWs:String(env.ADMIN_PASSWORD)!==String(env.ADMIN_PASSWORD).trim()});await env.DB.prepare("INSERT INTO attempts(ip,kind,ts) VALUES(?,?,?)").bind(ip,"loginfail",Date.now()).run();
    const left=Math.max(0,9-f.c);return J(h,{error:left?`Incorrect password (${left} tr${left===1?"y":"ies"} left before a 15-minute lockout).`:"Incorrect password. Locked out for 15 minutes."},401)}
   await env.DB.prepare("DELETE FROM attempts WHERE ip=? AND kind='loginfail'").bind(ip).run();
   return J(h,{token:await sign(env,"admin","admin",12*3600000)})}
