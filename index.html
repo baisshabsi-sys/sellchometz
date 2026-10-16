@@ -8,7 +8,7 @@
 <meta name="theme-color" content="#1f4e79">
 <link rel="apple-touch-icon" href="icons/icon-192.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<script src="config.js?v=5"></script>
+<script src="config.js?v=6"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Frank+Ruhl+Libre:wght@500;700&display=swap" rel="stylesheet">
 <style>
@@ -119,8 +119,22 @@ input,select,textarea{font-size:16px!important}
  table.adm td{border:0;padding:3px 0}
  table.adm td.row{justify-content:flex-start;padding-top:8px}
 }
-@page{size:letter;margin:0.6in}
+@page{size:letter;margin:0.4in}
 @media print{html,body{overflow:visible}footer{display:none!important}.shtar{font-size:11pt;line-height:1.45}.shtar .sigimg img{max-height:60px}}
+
+/* ---- print fit (v6) ---- */
+.steps{position:relative;z-index:5;-webkit-overflow-scrolling:touch;scroll-snap-type:x proximity}
+.steps button{position:relative;z-index:6;pointer-events:auto;touch-action:manipulation;scroll-snap-align:center}
+body.printing .shtar,.printfit{width:7.7in;box-sizing:border-box}
+@media print{
+ .shtar{font-size:9.5pt!important;line-height:1.3!important;padding:0!important;border:0!important}
+ .shtar p{margin:0 0 5px!important}.shtar .ttl{margin:0 0 2px!important;font-size:16pt!important}.shtar .subt{margin:0 0 6px!important;font-size:9pt!important}
+ .shtar .mech,.shtar .hebblock,.shtar .rabbi{margin:5px 0!important;padding:5px 7px!important}
+ .shtar .sigrow{margin-top:6px!important}.shtar .sigimg{height:46px!important}.shtar .sigimg img{max-height:44px!important}
+ .shtar,.printpage{page-break-inside:avoid;break-inside:avoid}
+ .printpage{page-break-after:always;break-after:page}.printpage:last-child{page-break-after:auto;break-after:auto}
+ main,#app{padding:0!important;margin:0!important;max-width:none!important}
+}
 </style>
 </head>
 <body>
@@ -134,7 +148,7 @@ input,select,textarea{font-size:16px!important}
 <div class="navbar hidden" id="navbar"><div class="in" id="navin"></div></div>
 <div class="modal" id="modal" onclick="if(event.target===this)closeModal()"><div class="box" id="modalBox"></div></div>
 <div class="toast" id="toast"></div>
-<footer class="noprint" style="text-align:center;color:#9ca3af;font-size:12px;padding:8px 0 90px">SellChometz <b id="appver">v5 (2026-10-16)</b> · <a href="#" style="color:#9ca3af" onclick="resetApp();return false">Reset app</a></footer>
+<footer class="noprint" style="text-align:center;color:#9ca3af;font-size:12px;padding:8px 0 90px">SellChometz <b id="appver">v6 (2026-10-16)</b> · <a href="#" style="color:#9ca3af" onclick="resetApp();return false">Reset app</a></footer>
 <script>window.APP_VERSION="v5";async function resetApp(){try{const rs=await navigator.serviceWorker.getRegistrations();await Promise.all(rs.map(r=>r.unregister()));const ks=await caches.keys();await Promise.all(ks.map(k=>caches.delete(k)))}catch(e){}sessionStorage.clear();location.replace(location.pathname+"?r="+Date.now())}</script>
 
 <script>
@@ -285,7 +299,8 @@ function validate(s){
  return""}
 function next(){const e=validate(step);if(e){toast(e);return}step++;render()}
 function prev(){step--;render()}
-function jump(i){if(i>step){for(let s=step;s<i;s++){const e=validate(s);if(e){step=s;render();toast(e);return}}}step=i;render()}
+function jump(i){step=i;render();const n=document.querySelector(".steps button.on");if(n&&n.scrollIntoView)n.scrollIntoView({block:"nearest",inline:"center"})}
+function validateAll(){for(let s=0;s<=5;s++){const e=validate(s);if(e){if(step!==s){step=s;render()}toast(e);return true}}return false}
 
 /* ---- signature pad ---- */
 function setupSig(){const c=$("#sig"),r=window.devicePixelRatio||1;const w=c.clientWidth,h=c.clientHeight;c.width=w*r;c.height=h*r;const x=c.getContext("2d");x.scale(r,r);x.lineWidth=2.4;x.lineCap="round";x.lineJoin="round";x.strokeStyle="#0b1f44";
@@ -330,7 +345,7 @@ function shtarHTML(f,preview){
  return h}
 
 /* ===================== Submit / Review / Done ===================== */
-function submitForm(){const e=validate(5);if(e){toast(e);return}
+function submitForm(){if(validateAll())return;
  F.date=today();F.year=pesachYear();F.ts=Date.now();
  const r=records();if(!F.id)F.id="MC"+Date.now().toString(36).toUpperCase();
  const i=r.findIndex(x=>x.id===F.id);i>=0?r[i]=JSON.parse(JSON.stringify(F)):r.push(JSON.parse(JSON.stringify(F)));saveRecords(r);
@@ -418,7 +433,7 @@ doLookup=async function(){const email=$("#lk").value.trim(),last=$("#lkl").value
   F=Object.assign(blank(),d.record,{id:"",sig:"",kinyan:false,date:"",year:""});step=0;screen="form";toast(`Welcome back ${d.record.first||""}! Loaded your ${d.record.year||""} info. Please review each page.`);render()}
  catch(e){msg.innerHTML=e.message==="Not found"?"We couldn't find a match. Check the spelling, try your phone number instead, or <a href='#' onclick='startNew();return false'>start a new form</a>.":esc(e.message);$("#lkb").disabled=false;$("#lkb").textContent="Find my info"}};
 const _blank=blank;startNew=function(){EDIT_TOKEN=null;F=blank();step=0;screen="form";render()};
-submitForm=async function(){const e=validate(5);if(e){toast(e);return}
+submitForm=async function(){if(validateAll())return;
  F.date=today();F.year=pesachYear();const btn=document.querySelector("#navin .gold");if(btn){btn.disabled=true;btn.textContent="Submitting…"}
  try{const d=await api("/api/submit",{method:"POST",body:{record:F,token:EDIT_TOKEN}});F.id=d.id;EDIT_TOKEN=d.token;screen="done";render()}
  catch(err){toast("Could not submit: "+err.message+". Check your connection and try again.");if(btn){btn.disabled=false;btn.textContent="Review & Submit"}}};
@@ -442,6 +457,13 @@ importJSON=function(inp){const f=inp.files[0];if(!f)return;f.text().then(async t
 if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js",{updateViaCache:"none"}).then(r=>r.update()).catch(()=>{}));
 
 render();
+</script>
+<script>
+/* v6: auto-scale each shtar to one Letter page (7.7in x 10.2in printable at 0.4in margins) */
+function fitPrint(){const H=10.1*96;document.querySelectorAll(".shtar").forEach(el=>{el.style.zoom="";const w=el.style.width;el.style.width="7.7in";const h=el.scrollHeight;el.style.width=w;if(h>H)el.style.zoom=(H/h).toFixed(3)})}
+function fitPrintPrep(){document.body.classList.add("printing");const m=document.createElement("style");m.id="pfm";m.textContent=[...document.styleSheets].flatMap(ss=>{try{return[...ss.cssRules]}catch(e){return[]}}).filter(r=>r.media&&[...r.media].includes("print")).map(r=>[...r.cssRules].map(x=>x.cssText).join("\n")).join("\n");document.head.appendChild(m);fitPrint();m.remove();document.body.classList.remove("printing")}
+addEventListener("beforeprint",fitPrintPrep);
+addEventListener("afterprint",()=>document.querySelectorAll(".shtar").forEach(el=>el.style.zoom=""));
 </script>
 </body>
 </html>
