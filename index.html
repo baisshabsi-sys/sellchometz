@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
+<title>SellChometz — Mechiras Chometz</title>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#1f4e79">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<script src="config.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Frank+Ruhl+Libre:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f5f3ee;--card:#fff;--ink:#1d2433;--mute:#6b7280;--line:#e5e1d8;--pri:#1f4e79;--pri2:#2f6fa8;--acc:#c8963e;--ok:#2e7d32;--err:#c62828;--r:14px}
+*{box-sizing:border-box}html,body{margin:0}
+body{font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--ink);-webkit-font-smoothing:antialiased}
+.he{font-family:"Frank Ruhl Libre",serif;direction:rtl}
+header.top{position:sticky;top:0;z-index:20;background:linear-gradient(135deg,var(--pri),#173a5c);color:#fff;padding:14px 18px;display:flex;align-items:center;gap:12px;box-shadow:0 2px 10px #0002}
+header.top .logo{width:38px;height:38px;border-radius:10px;background:#ffffff1f;display:grid;place-items:center;font-size:20px}
+header.top h1{font-size:17px;margin:0;font-weight:600;letter-spacing:.2px}
+header.top small{display:block;opacity:.75;font-weight:400;font-size:12px}
+header.top .sp{flex:1}
+.iconbtn{background:#ffffff1a;border:0;color:#fff;border-radius:10px;padding:8px 12px;font:inherit;font-size:13px;cursor:pointer}
+main{max-width:760px;margin:0 auto;padding:18px 14px 120px}
+.card{background:var(--card);border-radius:var(--r);box-shadow:0 1px 3px #0000000f,0 6px 24px #0000000a;padding:20px;margin-bottom:16px;border:1px solid var(--line)}
+h2{font-size:20px;margin:0 0 4px}h3{font-size:15px;margin:18px 0 8px;color:var(--pri);text-transform:uppercase;letter-spacing:.6px;display:flex;align-items:center;gap:8px}
+p.sub{margin:0 0 14px;color:var(--mute);font-size:14px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.grid .full{grid-column:1/-1}
+@media(max-width:560px){.grid{grid-template-columns:1fr}}
+label.f{display:block;font-size:13px;font-weight:500;color:#374151}
+input[type=text],input[type=email],input[type=tel],input[type=number],input[type=password],input[type=date],textarea,select{width:100%;margin-top:5px;padding:12px 13px;border:1.5px solid var(--line);border-radius:10px;font:inherit;font-size:16px;background:#fcfbf8;transition:.15s}
+input:focus,textarea:focus,select:focus{outline:0;border-color:var(--pri2);background:#fff;box-shadow:0 0 0 3px #2f6fa822}
+textarea{min-height:70px;resize:vertical}
+.err input,.err textarea{border-color:var(--err)}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{position:relative}.chip input{position:absolute;opacity:0}
+.chip span{display:inline-block;padding:9px 14px;border:1.5px solid var(--line);border-radius:999px;font-size:14px;cursor:pointer;background:#fcfbf8;user-select:none;transition:.12s}
+.chip input:checked+span{background:var(--pri);border-color:var(--pri);color:#fff}
+.chip input:focus-visible+span{box-shadow:0 0 0 3px #2f6fa855}
+.opt{display:flex;gap:12px;align-items:flex-start;padding:12px;border:1.5px solid var(--line);border-radius:12px;margin-bottom:8px;cursor:pointer;background:#fcfbf8}
+.opt input{margin-top:3px;width:18px;height:18px;accent-color:var(--pri)}
+.opt.on{border-color:var(--pri2);background:#eef4fa}
+.opt .t{font-size:15px}.opt .d{font-size:12.5px;color:var(--mute);margin-top:2px}
+.reveal{margin:6px 0 4px 30px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:0;border-radius:12px;padding:13px 20px;font:inherit;font-weight:600;font-size:15px;cursor:pointer;background:var(--pri);color:#fff;transition:.15s}
+.btn:hover{background:var(--pri2)}.btn.ghost{background:transparent;color:var(--pri);border:1.5px solid var(--line)}.btn.ghost:hover{background:#fff}
+.btn.gold{background:var(--acc)}.btn.dark{background:#111827}.btn.danger{background:var(--err)}.btn.sm{padding:8px 12px;font-size:13px;border-radius:9px}
+.btn.block{width:100%}
+.hero{text-align:center;padding:34px 20px}
+.hero .he{font-size:34px;color:var(--pri);margin:0}
+.hero h2{font-size:28px;margin:6px 0}.hero p{color:var(--mute);max-width:440px;margin:8px auto 24px}
+.hero .actions{display:grid;gap:10px;max-width:360px;margin:0 auto}
+.linkish{background:none;border:0;color:var(--mute);font:inherit;font-size:13px;cursor:pointer;margin-top:18px;text-decoration:underline}
+.steps{display:flex;gap:4px;margin:0 0 16px;overflow-x:auto;scrollbar-width:none}
+.steps button{flex:1;min-width:86px;border:0;background:none;padding:8px 4px 10px;font:inherit;font-size:12px;color:var(--mute);cursor:pointer;border-bottom:3px solid var(--line);white-space:nowrap}
+.steps button.on{color:var(--pri);border-color:var(--pri);font-weight:600}.steps button.done{color:var(--ok);border-color:#9ccc9f}
+.navbar{position:fixed;bottom:0;left:0;right:0;background:#fffffff2;backdrop-filter:blur(8px);border-top:1px solid var(--line);padding:12px 14px calc(12px + env(safe-area-inset-bottom));z-index:15}
+.navbar .in{max-width:760px;margin:0 auto;display:flex;gap:10px}.navbar .in .btn{flex:1}
+.help{width:24px;height:24px;border-radius:50%;border:1.5px solid var(--acc);color:var(--acc);background:none;font-weight:700;cursor:pointer;font-size:13px;line-height:1;padding:0}
+.modal{position:fixed;inset:0;background:#0007;display:none;align-items:center;justify-content:center;z-index:50;padding:18px}
+.modal.show{display:flex}.modal .box{background:#fff;border-radius:16px;max-width:520px;width:100%;max-height:85vh;overflow:auto;padding:22px;box-shadow:0 20px 60px #0005}
+.toast{position:fixed;left:50%;bottom:96px;transform:translateX(-50%) translateY(20px);background:#111827;color:#fff;padding:11px 18px;border-radius:10px;font-size:14px;opacity:0;transition:.25s;z-index:60;pointer-events:none;max-width:90vw}
+.toast.show{opacity:1;transform:translateX(-50%)}
+.pill{display:inline-block;font-size:11px;padding:3px 8px;border-radius:999px;background:#eef4fa;color:var(--pri);font-weight:600}
+.pill.early{background:#fff4e0;color:#9a6200}.pill.earliest{background:#fde8e8;color:#a61b1b}
+/* shtar */
+.shtar{background:#fffdf7;border:1px solid #e9dfc6;border-radius:6px;padding:34px 34px 26px;font-family:Georgia,"Times New Roman",serif;font-size:13.5px;line-height:1.6;color:#111}
+.shtar .ttl{display:flex;justify-content:space-between;align-items:center;font-size:22px;border-bottom:2px double #333;padding-bottom:6px;margin-bottom:6px}
+.shtar .ttl .he{font-size:26px}
+.shtar .subt{text-align:center;font-family:Arial,sans-serif;font-weight:700;font-size:12.5px;letter-spacing:.3px;margin:6px 0 14px}
+.shtar p{margin:0 0 9px;text-align:justify}.shtar b.ck{font-family:Arial,sans-serif}
+.shtar .mech{font-family:Arial,sans-serif;font-weight:700;margin:12px 0}
+.shtar .sigrow{display:flex;gap:18px;align-items:flex-end;flex-wrap:wrap;margin-top:8px}
+.shtar .sigimg{height:70px;border-bottom:1px solid #333;min-width:240px;display:flex;align-items:flex-end}
+.shtar .sigimg img{max-height:68px}
+.shtar .rabbi{border-top:1px dashed #555;margin-top:14px;padding-top:10px;font-size:12.5px}
+.shtar .hebblock{margin-top:12px;padding-top:10px;border-top:1px solid #ddd;font-size:15px;line-height:1.75;text-align:justify}
+.sigpad{border:2px dashed #c9c2b2;border-radius:12px;background:#fff;touch-action:none;width:100%;height:170px;display:block;cursor:crosshair}
+table.adm{width:100%;border-collapse:collapse;font-size:14px}
+table.adm th,table.adm td{padding:10px 8px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+table.adm th{font-size:12px;color:var(--mute);text-transform:uppercase;letter-spacing:.5px}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.muted{color:var(--mute);font-size:13px}
+.hidden{display:none!important}
+.stat{flex:1;min-width:120px;background:#fcfbf8;border:1px solid var(--line);border-radius:12px;padding:12px}
+.stat b{display:block;font-size:22px;color:var(--pri)}
+@media print{
+  body{background:#fff}header.top,.navbar,.noprint,.steps,.toast,.modal{display:none!important}
+  main{max-width:none;padding:0}.card{box-shadow:none;border:0;padding:0;margin:0}
+  .shtar{border:0;padding:0;font-size:11.5px;background:#fff}
+  .printpage{page-break-after:always}.printpage:last-child{page-break-after:auto}
+}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="logo">✡</div>
+  <div><h1>Mechiras Chometz <small id="hdrShul">Made Easy</small></h1></div>
+  <div class="sp"></div>
+  <button class="iconbtn noprint" id="hdrHome" onclick="goHome()">⌂ Home</button>
+</header>
+<main id="app"></main>
+<div class="navbar hidden" id="navbar"><div class="in" id="navin"></div></div>
+<div class="modal" id="modal" onclick="if(event.target===this)closeModal()"><div class="box" id="modalBox"></div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ===================== Data definitions (from original SellChometz APK) ===================== */
+const PLACES=["Attic","Basement","Bathroom cabinet","Breakfront","Briefcases","Closet","Crawlspace","Desk drawers","Freezer","Garage","Grill","Kitchen cabinets","Liquor cabinet","Medicine chest","Pantry","Refrigerator","Shed","Storage area"];
+const MORE=[["car","Car in alternate location","A vehicle at"],["invest","Investment property","Investment property at"],["locker","Locker at business/school","Locker at"],["neighbor","Neighbor's home","Another home"],["office","Office/business","Office/business at"],["cooler","Refrigerator/freezer at work","Refrigerator/freezer at"]];
+const PRODUCTS=["Baking ingredients","Baked products","Barley","Beer","Cereals","Condiments","Cosmetics","Crackers","Frozen items","Groceries","Liquor","Medicines","Mixes","Noodle products","Oatmeal","Perfumes","Pet food","Pickles","Playdough","Toiletries","Vitamins","Wheat germ"];
+const AFFIXED=["utensils","appliances","baking tools","toys","books","seforim","etc."];
+const STEPS=["My Info","Places","More Places","Products","More Info","Sign"];
+const HELP={
+ value:"How much would you sell all your chometz for right now?",
+ bedika:"Preferably choose the first option to do a Bedika on your entire premises. If that is not possible and you'd like to rent some areas to a Goy for the entire Pesach, then choose one of the next two options.",
+ zone:"If you will be in a different time zone over Pesach (e.g. Eretz Yisroel or Europe), your chometz must be sold at the earliest Mechira, before Pesach begins where you are.",
+ keys:"The buyer must have access to the chometz. Tell us where keys or the combination can be obtained locally (include car keys, if applicable)."
+};
+
+/* ===================== Storage ===================== */
+const LS={get:(k,d)=>{try{return JSON.parse(localStorage.getItem(k))??d}catch(e){return d}},set:(k,v)=>localStorage.setItem(k,JSON.stringify(v))};
+const defaultSettings={rabbi:"Rabbi Yaakov Kaplan",shul:"Bais Shabsi",shulEmail:"baisshabsi@gmail.com",pin:"7323646571",deadline:"",donation:"",showHebrew:true};
+let settings=Object.assign({},defaultSettings,LS.get("mc_settings",{}));
+let records=()=>LS.get("mc_records",[]);
+let saveRecords=r=>LS.set("mc_records",r);
+function blank(){return{id:"",first:"",last:"",address:"",city:"",state:"",phone:"",email:"",places:[],placeOther:"",more:{},moreOther:"",zone:false,products:[],affixed:[],productOther:"",value:"",home:false,keys:false,keyPlace:"",comb:false,combo:"",bedika:"",bedikaText:"",sig:"",kinyan:false,date:"",year:"",donation:""}}
+let F=blank(),step=0,screen="home",adminOK=false;
+
+/* ===================== Pesach dates (Hebrew calendar via Intl) ===================== */
+function nisan(Y,day){try{const f=new Intl.DateTimeFormat('en-u-ca-hebrew',{month:'long',day:'numeric'});for(let d=new Date(Y,2,10);d<new Date(Y,4,5);d.setDate(d.getDate()+1)){const p=f.formatToParts(d);if(p.find(x=>x.type=='month').value=='Nisan'&&+p.find(x=>x.type=='day').value===day)return new Date(d)}}catch(e){}return null}
+function pesachYear(){const now=new Date();let Y=now.getFullYear();const end=nisan(Y,22);if(end&&now>end)Y++;return Y}
+function ord(n){const s=["th","st","nd","rd"],v=n%100;return n+(s[(v-20)%10]||s[v]||s[0])}
+function period(Y){const a=nisan(Y,14),b=nisan(Y,22);if(!a)return"Pesach "+Y;const m=d=>d.toLocaleString('en-US',{month:'long'});return`${m(a)} ${ord(a.getDate())} to ${m(b)} ${ord(b.getDate())}`}
+const today=()=>new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'});
+
+/* ===================== Helpers ===================== */
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+function toast(m){const t=$("#toast");t.textContent=m;t.classList.add("show");clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove("show"),2600)}
+function modal(html){$("#modalBox").innerHTML=html;$("#modal").classList.add("show")}
+function closeModal(){$("#modal").classList.remove("show")}
+function help(k){modal(`<h3 style="margin-top:0">ℹ️ Help</h3><p style="font-size:16px;line-height:1.6">${esc(HELP[k])}</p><button class="btn block" onclick="closeModal()">Got it</button>`)}
+const hb=k=>`<button type="button" class="help" onclick="help('${k}')" aria-label="Help">?</button>`;
+function list(a){a=a.filter(Boolean);return a.length<2?(a[0]||""):a.slice(0,-1).join(", ")+" and "+a[a.length-1]}
+function mechiraType(f){if(f.zone)return"earliest";if(f.bedika==="exclude"||f.bedika==="only")return"early";return"regular"}
+const MTXT={earliest:"I would like to do the earliest Mechira.",early:"I would like an early Mechira - before the Bedika.",regular:"I would like a regular Mechira."};
+function hdr(){$("#hdrShul").textContent=settings.shul?settings.shul+" · "+(settings.rabbi||""):"Made Easy"}
+
+/* ===================== Screens ===================== */
+function render(){hdr();const nb=$("#navbar");nb.classList.add("hidden");window.scrollTo(0,0);
+ ({home:Home,lookup:Lookup,form:Form,review:Review,done:Done,admin:Admin,pin:Pin})[screen]()}
+function goHome(){if(screen==="form"&&(F.first||F.email)&&!confirm("Leave and clear this form? (Nothing will be saved.)"))return;F=blank();step=0;adminOK=false;screen="home";render()}
+
+function Home(){
+ const Y=pesachYear();
+ $("#app").innerHTML=`<div class="card hero">
+  <p class="he">מכירת חמץ</p><h2>Sell Your Chometz</h2>
+  <p>Authorize ${esc(settings.rabbi||"the Rav")} to sell your chometz for Pesach ${Y} (${esc(period(Y))}). Takes about 3 minutes.</p>
+  ${settings.deadline?`<p class="pill early" style="margin-bottom:18px">Deadline: ${esc(settings.deadline)}</p>`:""}
+  <div class="actions">
+   <button class="btn block" style="padding:17px;font-size:17px" onclick="startNew()">Start new form →</button>
+   <button class="btn ghost block" onclick="screen='lookup';render()">↺ Use last year's info</button>
+  </div>
+  <button class="linkish" onclick="screen=adminOK?'admin':'pin';render()">Shul / Rabbi use only</button>
+ </div>
+ <div class="card"><h3 style="margin-top:0">How it works</h3>
+  <ol class="muted" style="padding-left:18px;line-height:1.8;margin:0">
+   <li>Enter your info, where your chometz is, and what it consists of.</li>
+   <li>Choose your bedikah and key/access arrangements.</li>
+   <li>Review the <b>Shtar Harsha'ah</b> (authorization), sign on screen, and confirm the kinyan.</li>
+   <li>Print or save a PDF copy. Your info is saved for next year by your email.</li>
+  </ol></div>`}
+function startNew(){F=blank();step=0;screen="form";render()}
+
+function Lookup(){
+ $("#app").innerHTML=`<div class="card"><h2>Welcome back!</h2><p class="sub">Enter the e-mail address you used last time to load your information.</p>
+ <label class="f">E-mail<input type="email" id="lk" autocomplete="email" placeholder="you@example.com"></label>
+ <div class="row" style="margin-top:14px"><button class="btn" onclick="doLookup()">Find my info</button><button class="btn ghost" onclick="goHome()">Cancel</button></div></div>`;
+ $("#lk").focus();$("#lk").onkeydown=e=>{if(e.key==="Enter")doLookup()}}
+function doLookup(){const e=$("#lk").value.trim().toLowerCase();const r=records().filter(x=>x.email.toLowerCase()===e).sort((a,b)=>b.ts-a.ts)[0];
+ if(!r){toast("Not found. Please start a new form.");return}
+ F=Object.assign(blank(),JSON.parse(JSON.stringify(r)),{id:"",sig:"",kinyan:false,date:"",year:""});step=0;screen="form";toast("Welcome back "+r.first+"! Please review each page.");render()}
+
+function Form(){
+ const tabs=STEPS.map((s,i)=>`<button class="${i===step?'on':(i<step?'done':'')}" onclick="jump(${i})">${i<step?'✓ ':''}${s}</button>`).join("");
+ $("#app").innerHTML=`<nav class="steps">${tabs}</nav><div class="card" id="pane"></div>`;
+ [S0,S1,S2,S3,S4,S5][step]();
+ bind();
+ const nb=$("#navbar");nb.classList.remove("hidden");
+ $("#navin").innerHTML=(step>0?`<button class="btn ghost" onclick="prev()">← Back</button>`:`<button class="btn ghost" onclick="goHome()">Cancel</button>`)+
+  (step<5?`<button class="btn" onclick="next()">Next →</button>`:`<button class="btn gold" onclick="submitForm()">Review &amp; Submit</button>`)}
+const inp=(k,l,t="text",x="")=>`<label class="f ${x}">${l}<input type="${t}" data-k="${k}" value="${esc(F[k])}" ${t==='tel'?'inputmode="tel"':''}></label>`;
+function chips(arr,key){return`<div class="chips">${arr.map(p=>`<label class="chip"><input type="checkbox" data-arr="${key}" value="${esc(p)}" ${F[key].includes(p)?"checked":""}><span>${esc(p)}</span></label>`).join("")}</div>`}
+function S0(){$("#pane").innerHTML=`<h2>My Info</h2><p class="sub">Your e-mail is your username. Use it next year to reload everything.</p>
+ <div class="grid">${inp("first","First name")}${inp("last","Last name")}${inp("address","Street address","text","full")}${inp("city","City")}${inp("state","State")}${inp("phone","Phone (home or cell)","tel")}${inp("email","E-mail (username)","email")}
+ <div class="full muted">Today's date: <b>${today()}</b></div></div>`}
+function S1(){$("#pane").innerHTML=`<h2>Places</h2><p class="sub">The chometz on my property can be found primarily in these places:</p>${chips(PLACES,"places")}
+ <label class="f" style="margin-top:14px">Other places at home<input type="text" data-k="placeOther" value="${esc(F.placeOther)}" placeholder="e.g. playroom, dining room hutch"></label>`}
+function S2(){$("#pane").innerHTML=`<h2>More Places</h2><p class="sub"><b>Additional locations other than your home.</b> Check any that apply and enter the address.</p>
+ ${MORE.map(([k,l])=>{const on=!!F.more[k];return`<div class="opt ${on?'on':''}" onclick="if(event.target.tagName!=='INPUT')this.querySelector('input').click()"><input type="checkbox" data-more="${k}" ${on?"checked":""}><div style="flex:1"><div class="t">${l}</div>${on?`<input type="text" data-moreaddr="${k}" placeholder="Address" value="${esc(F.more[k]||"")}" style="margin-top:8px" onclick="event.stopPropagation()">`:""}</div></div>`}).join("")}
+ <label class="f" style="margin-top:6px">Other (description and address)<input type="text" data-k="moreOther" value="${esc(F.moreOther)}"></label>
+ <h3>Travel ${hb('zone')}</h3>
+ <div class="opt ${F.zone?'on':''}" onclick="if(event.target.tagName!=='INPUT')this.querySelector('input').click()"><input type="checkbox" data-bool="zone" ${F.zone?"checked":""}><div><div class="t">I am selling chometz outside of this time zone</div><div class="d">This requires the earliest Mechira.</div></div></div>`}
+function S3(){$("#pane").innerHTML=`<h2>Products</h2><p class="sub">The chometz may consist of, among other things:</p>${chips(PRODUCTS,"products")}
+ <h3>Chometz affixed to</h3>${chips(AFFIXED,"affixed")}
+ <label class="f" style="margin-top:14px">I would also like to include these item(s):<textarea data-k="productOther">${esc(F.productOther)}</textarea></label>`}
+function S4(){const b=(v,t,d)=>`<label class="opt ${F.bedika===v?'on':''}"><input type="radio" name="bed" data-radio="bedika" value="${v}" ${F.bedika===v?"checked":""}><div style="flex:1"><div class="t">${t}</div>${d?`<div class="d">${d}</div>`:""}</div></label>${(F.bedika===v&&v!=="full")?`<div class="reveal"><textarea data-k="bedikaText" placeholder="List the areas">${esc(F.bedikaText)}</textarea></div>`:""}`;
+ $("#pane").innerHTML=`<h2>More Info</h2>
+ <h3>Value ${hb('value')}</h3><label class="f">The chometz has an approximate value of ($)<input type="number" inputmode="decimal" min="0" data-k="value" value="${esc(F.value)}" placeholder="e.g. 300"></label>
+ <h3>Keys / Access ${hb('keys')}</h3>
+ <label class="opt ${F.home?'on':''}"><input type="checkbox" data-bool="home" ${F.home?"checked":""}><div class="t">I will be home the entire Pesach.</div></label>
+ <label class="opt ${F.keys?'on':''}"><input type="checkbox" data-bool="keys" ${F.keys?"checked":""}><div class="t">Keys/combination will be available locally (include car keys, if applicable)</div></label>
+ ${F.keys?`<div class="reveal"><input type="text" data-k="keyPlace" placeholder="Where (name / address)" value="${esc(F.keyPlace)}"></div>`:""}
+ <label class="opt ${F.comb?'on':''}"><input type="checkbox" data-bool="comb" ${F.comb?"checked":""}><div class="t">My combination is:</div></label>
+ ${F.comb?`<div class="reveal"><input type="text" data-k="combo" placeholder="Combination" value="${esc(F.combo)}"></div>`:""}
+ <h3>Bedikah ${hb('bedika')}</h3>
+ ${b("full","I will be doing a bedikah on my entire premises.","Recommended")}
+ ${b("exclude","I would like to exclude the following area(s) from the bedikah:","Those areas are rented out before the Zman Bedika (early Mechira)")}
+ ${b("only","I will only be doing a bedikah in the following places:","All other areas are rented out before the Zman Bedika (early Mechira)")}
+ ${settings.donation?`<h3>Donation (optional)</h3><label class="f">${esc(settings.donation)}<input type="text" data-k="donation" value="${esc(F.donation)}" placeholder="$ amount (optional)"></label>`:""}`}
+function S5(){$("#pane").innerHTML=`<h2>Review &amp; Sign</h2><p class="sub">Please read the authorization below. You can tap any step above to make changes.</p>
+ <div class="shtar">${shtarHTML(F,true)}</div>
+ <h3>Your signature</h3><canvas class="sigpad" id="sig"></canvas>
+ <div class="row" style="margin-top:8px"><button class="btn ghost sm" onclick="clearSig()">Clear signature</button><span class="muted">Sign with your finger or mouse</span></div>
+ <label class="opt ${F.kinyan?'on':''}" style="margin-top:14px"><input type="checkbox" data-bool="kinyan" ${F.kinyan?"checked":""}><div><div class="t">I confirm this authorization with a Kinyan Suddar</div><div class="d">Take hold of the Rav's garment / pen (in person) or confirm here as instructed by the Rav.</div></div></label>`;
+ setupSig()}
+
+/* ---- binding ---- */
+function bind(){
+ document.querySelectorAll("[data-k]").forEach(e=>e.oninput=()=>{F[e.dataset.k]=e.value});
+ document.querySelectorAll("[data-arr]").forEach(e=>e.onchange=()=>{const a=F[e.dataset.arr];e.checked?a.push(e.value):a.splice(a.indexOf(e.value),1)});
+ document.querySelectorAll("[data-bool]").forEach(e=>e.onchange=()=>{F[e.dataset.bool]=e.checked;if(e.dataset.bool==="home"&&e.checked){F.keys=false;F.comb=false}if((e.dataset.bool==="keys"||e.dataset.bool==="comb")&&e.checked)F.home=false;rerender()});
+ document.querySelectorAll("[data-radio]").forEach(e=>e.onchange=()=>{if(F.bedika!==e.value)F.bedikaText="";F.bedika=e.value;rerender()});
+ document.querySelectorAll("[data-more]").forEach(e=>e.onchange=()=>{const k=e.dataset.more;if(e.checked)F.more[k]=F.more[k]||" ";else delete F.more[k];rerender();const a=document.querySelector(`[data-moreaddr="${k}"]`);if(a){a.value=a.value.trim();a.focus()}});
+ document.querySelectorAll("[data-moreaddr]").forEach(e=>e.oninput=()=>{F.more[e.dataset.moreaddr]=e.value});
+}
+function rerender(){const y=window.scrollY;const s=F.sig;Form();window.scrollTo(0,y)}
+
+/* ---- validation (mirrors original toasts) ---- */
+function validate(s){
+ if(s===0){const miss=["first","last","address","city","state","phone","email"].filter(k=>!String(F[k]).trim());if(miss.length)return"Incomplete: please fill in all fields";
+  if(!/[0-9]/.test(F.address)||!/[a-z]/i.test(F.address))return"Invalid address";
+  if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(F.email.trim()))return"Please enter a valid e-mail";}
+ if(s===2){for(const k in F.more)if(!String(F.more[k]).trim())return"Missing address";}
+ if(s===3){if(!F.products.length&&!F.affixed.length&&!F.productOther.trim())return"What are you selling?";}
+ if(s===4){if(!String(F.value).trim())return"Please enter an approximate value";
+  if(!F.home&&!F.keys&&!F.comb)return"Please choose a Keys/Access option";
+  if((F.keys&&!F.keyPlace.trim())||(F.comb&&!F.combo.trim()))return"Missing location for keys/combination";
+  if(!F.bedika)return"Choose type of bedikah";if(F.bedika!=="full"&&!F.bedikaText.trim())return"Please list the bedikah areas";}
+ if(s===5){if(!F.sig)return"Please sign in the signature box";if(!F.kinyan)return"Please confirm the Kinyan";}
+ return""}
+function next(){const e=validate(step);if(e){toast(e);return}step++;render()}
+function prev(){step--;render()}
+function jump(i){if(i>step){for(let s=step;s<i;s++){const e=validate(s);if(e){step=s;render();toast(e);return}}}step=i;render()}
+
+/* ---- signature pad ---- */
+function setupSig(){const c=$("#sig"),r=window.devicePixelRatio||1;const w=c.clientWidth,h=c.clientHeight;c.width=w*r;c.height=h*r;const x=c.getContext("2d");x.scale(r,r);x.lineWidth=2.4;x.lineCap="round";x.lineJoin="round";x.strokeStyle="#0b1f44";
+ if(F.sig){const im=new Image();im.onload=()=>x.drawImage(im,0,0,w,h);im.src=F.sig}
+ let d=false,lx,ly;const p=e=>{const b=c.getBoundingClientRect();return[e.clientX-b.left,e.clientY-b.top]};
+ c.onpointerdown=e=>{d=true;c.setPointerCapture(e.pointerId);[lx,ly]=p(e);x.beginPath();x.arc(lx,ly,1,0,7);x.fill()};
+ c.onpointermove=e=>{if(!d)return;const[nx,ny]=p(e);x.beginPath();x.moveTo(lx,ly);x.lineTo(nx,ny);x.stroke();lx=nx;ly=ny};
+ c.onpointerup=c.onpointercancel=()=>{if(d){d=false;F.sig=c.toDataURL("image/png")}}}
+function clearSig(){F.sig="";const c=$("#sig");c.getContext("2d").clearRect(0,0,c.width,c.height)}
+
+/* ===================== Shtar ===================== */
+function shtarHTML(f,preview){
+ const R=esc(settings.rabbi||"the Rav"),Y=f.year||pesachYear();
+ const B=s=>`<b class="ck">${esc(s)}</b>`;
+ const prods=f.products.map(p=>p.toLowerCase());
+ let h=`<div class="ttl"><span class="he">שטר</span><span>Authorization</span><span class="he">הרשאה</span></div>
+ <div class="subt">DELEGATION OF POWER OF ATTORNEY FOR SALE OF CHOMETZ<br>AND SUBSEQUENT BILL OF SALE</div>
+ <p>I hereby fully empower and authorize <b>${R}</b>, or anyone else he may designate as a substitute in his stead, to sell and transfer before the coming Pesach all legal title to my "Chometz". Chometz is understood, but not limited, to mean any leavened product made of wheat, barley, spelt, oats, or rye, or any mixture or derivative thereof, as well as any item having become questionable as to its content as defined in accordance with Jewish Law and tradition.</p>`;
+ let p2="";
+ if(prods.length)p2+=`Chometz in my possession may consist of among other things: ${B(prods.join(", "))}. `;
+ if(f.affixed.length)p2+=`Chometz affixed to: ${B(f.affixed.join(", "))}. `;
+ if(f.productOther.trim())p2+=`In addition to the above, I wish to specify the following other item(s): ${B(f.productOther.trim())}.`;
+ if(p2)h+=`<p>${p2}</p>`;
+ const pl=[...f.places.map(p=>p.toLowerCase())];if(f.placeOther.trim())pl.push(f.placeOther.trim());
+ let p3="";if(pl.length)p3+=`The above items may be found primarily in (items at home address: ${esc([f.address,f.city,f.state].filter(Boolean).join(", "))}): ${B(pl.join(", "))}. `;
+ const mo=MORE.filter(([k])=>f.more[k]&&String(f.more[k]).trim()).map(([k,,lbl])=>`${lbl}: ${B(String(f.more[k]).trim())}`);
+ if(f.moreOther.trim())mo.push(`${B(f.moreOther.trim())}`);
+ if(mo.length)p3+=`They can also be found in: ${mo.join("; ")}.`;
+ if(p3)h+=`<p>${p3}</p>`;
+ if(f.bedika==="exclude")h+=`<p><b class="ck">I would like to rent out the following areas before the Zman Bedika:</b> ${B(f.bedikaText)}</p>`;
+ if(f.bedika==="only")h+=`<p><b class="ck">I would like to rent out all areas before the Zman Bedika except:</b> ${B(f.bedikaText)}</p>`;
+ h+=`<p>In addition, he may also sell all Chometz and/or mixtures containing Chometz that are knowingly or unknowingly in my possession, or to which I have legal ownership or responsibility in whole or in part; or shares, stock, or business interests in corporations which own or deal in Chometz (including all transit goods which might be delivered to me during the period of ${esc(period(Y))} ${Y} inclusive) to a non-Jew of his choice. I also authorize <b>${R}</b> or his designate, to rent or sell as he deems fit, and for the appropriate duration, the places where the above mentioned items are located.</p>`;
+ let k="";if(f.home)k+=`${B("I will be home for Pesach.")} `;if(f.keys&&f.keyPlace)k+=`Keys/combination to these locations can be found at: ${B(f.keyPlace)}. `;if(f.comb&&f.combo)k+=`The combination to these locations is: ${B(f.combo)}. `;
+ if(k)h+=`<p>${k}</p>`;
+ h+=`<p>The buyer shall have, through the aid and cooperation of the Rabbi, free access to the Chometz and/or mixtures containing Chometz acquired by him. The above-mentioned goods have an approximate value of ${B("$"+(f.value||"____"))}. Exact assessment of quantity and value of goods mentioned above, will take place after Pesach. The buyer's deposit is to be paid to <b>${R}</b> or his designate. This authorization is made binding by my signature below which, when given with the bill of sale, shall be considered as if I had actually signed the bill of sale. The authorization is further legalized by what is known as Kinyan Suddar (Taking Hold of a Garment) and is also intended to conform to the criteria of secular law by the use of any appropriate legal instrument available to achieve this objective.</p>
+ <div class="mech">${MTXT[mechiraType(f)]}</div>
+ <div class="sigrow"><div>Signed by me on <b>${esc(f.date||today())}</b></div><div class="sigimg">${f.sig&&!preview?`<img src="${f.sig}" alt="signature">`:(preview?'<span class="muted">(sign below)</span>':"")}</div></div>
+ <p style="margin-top:8px">Name: <b>${esc(f.first)} ${esc(f.last)}</b> &nbsp; Phone: <b>${esc(f.phone)}</b><br>Address: <b>${esc(f.address)} ${esc(f.city)}${f.state?", "+esc(f.state):""}</b> &nbsp; E-mail: ${esc(f.email)}${f.kinyan?`<br><span class="muted">✓ Kinyan confirmed</span>`:""}${f.donation?`<br>Donation pledged: <b>${esc(f.donation)}</b>`:""}</p>`;
+ if(settings.showHebrew)h+=`<div class="hebblock he">הנני מייפה כח את <b>${esc(settings.rabbi||"הרב")}</b> או מי שימנה במקומו, למכור ולהשכיר את כל החמץ ותערובת חמץ שברשותי, וכן את המקומות בהם הוא נמצא, לנכרי כפי ראות עיניו, לפני זמן איסור חמץ בערב פסח שנת ${Y}, ונתתי לו כח ורשות גמורה לעשות כל מה שיראה לו לטובה בענין זה, ובקנין סודר, ובאופן המועיל בדיני ישראל ובדיני המדינה.</div>`;
+ h+=`<div class="rabbi">(FOR RABBI'S USE ONLY:) I, ${R}, grant rights to Rabbi ______________________ to deal on my behalf to effect the sale of the above-mentioned goods and the rental or sale of the locations.<br><br>Signed ______________________________________</div>`;
+ return h}
+
+/* ===================== Submit / Review / Done ===================== */
+function submitForm(){const e=validate(5);if(e){toast(e);return}
+ F.date=today();F.year=pesachYear();F.ts=Date.now();
+ const r=records();if(!F.id)F.id="MC"+Date.now().toString(36).toUpperCase();
+ const i=r.findIndex(x=>x.id===F.id);i>=0?r[i]=JSON.parse(JSON.stringify(F)):r.push(JSON.parse(JSON.stringify(F)));saveRecords(r);
+ screen="done";render()}
+function Done(){const m=mechiraType(F);
+ $("#app").innerHTML=`<div class="card noprint" style="text-align:center"><div style="font-size:44px">✅</div><h2>Thank you, ${esc(F.first)}!</h2>
+ <p class="sub">Your authorization has been recorded <span class="pill ${m}">${m} mechira</span><br>Confirmation #: <b>${esc(F.id)}</b></p>
+ <div class="row" style="justify-content:center"><button class="btn" onclick="window.print()">🖨 Print / Save PDF</button><button class="btn ghost" onclick="editAgain()">✎ Edit</button><button class="btn dark" onclick="newUser()">New user →</button></div>
+ <p class="muted" style="margin-top:12px">Next year just tap "Use last year's info" and enter <b>${esc(F.email)}</b>.</p></div>
+ <div class="card printpage"><div class="shtar">${shtarHTML(F,false)}</div></div>`}
+function editAgain(){step=0;screen="form";render()}
+function newUser(){F=blank();step=0;screen="home";render()}
+function Review(){Done()}
+
+/* ===================== Admin ===================== */
+function Pin(){$("#app").innerHTML=`<div class="card"><h2>Shul / Rabbi sign-in</h2><p class="sub">Enter the admin code to view submissions and settings.</p>
+ <label class="f">Admin code<input type="password" id="pin" inputmode="numeric"></label><div class="row" style="margin-top:14px"><button class="btn dark" onclick="chkPin()">Sign in</button><button class="btn ghost" onclick="goHome()">Cancel</button></div></div>`;
+ $("#pin").focus();$("#pin").onkeydown=e=>{if(e.key==="Enter")chkPin()}}
+function chkPin(){if($("#pin").value===settings.pin){adminOK=true;screen="admin";render()}else toast("Incorrect code")}
+let aq="",ay="all";
+function Admin(){const all=records().sort((a,b)=>b.ts-a.ts);const years=[...new Set(all.map(r=>r.year))].sort().reverse();
+ const rs=all.filter(r=>(ay==="all"||String(r.year)===ay)&&(`${r.first} ${r.last} ${r.email} ${r.phone} ${r.address}`.toLowerCase().includes(aq.toLowerCase())));
+ const cnt=t=>rs.filter(r=>mechiraType(r)===t).length;
+ $("#app").innerHTML=`<div class="card"><div class="row" style="justify-content:space-between"><h2>Submissions</h2><button class="btn ghost sm" onclick="adminOK=false;goHome()">Sign out</button></div>
+ <div class="row" style="margin:12px 0"><div class="stat"><b>${rs.length}</b>Total</div><div class="stat"><b>${cnt("regular")}</b>Regular</div><div class="stat"><b>${cnt("early")}</b>Early (before bedikah)</div><div class="stat"><b>${cnt("earliest")}</b>Earliest (time zone)</div></div>
+ <div class="row"><input type="text" id="aq" placeholder="Search name, email, phone…" value="${esc(aq)}" style="flex:2;margin:0"><select id="ay" style="flex:1;margin:0"><option value="all">All years</option>${years.map(y=>`<option ${String(y)===ay?"selected":""}>${y}</option>`).join("")}</select></div>
+ <div style="overflow-x:auto;margin-top:10px"><table class="adm"><thead><tr><th>Name</th><th>Contact</th><th>Mechira</th><th>Value</th><th></th></tr></thead><tbody>
+ ${rs.map(r=>`<tr><td><b>${esc(r.first)} ${esc(r.last)}</b><div class="muted">${esc(r.date)} · ${r.year}</div></td><td>${esc(r.email)}<div class="muted">${esc(r.phone)}</div></td><td><span class="pill ${mechiraType(r)}">${mechiraType(r)}</span></td><td>$${esc(r.value)}</td>
+ <td class="row" style="flex-wrap:nowrap"><button class="btn ghost sm" onclick="viewRec('${r.id}')">View</button><button class="btn ghost sm" onclick="delRec('${r.id}')" title="Delete">🗑</button></td></tr>`).join("")||`<tr><td colspan="5" class="muted">No submissions yet.</td></tr>`}
+ </tbody></table></div>
+ <div class="row" style="margin-top:14px"><button class="btn sm" onclick="printAll()">🖨 Print all shown</button><button class="btn ghost sm" onclick="exportCSV()">⬇ CSV</button><button class="btn ghost sm" onclick="exportJSON()">⬇ Backup (JSON)</button><label class="btn ghost sm">⬆ Import JSON<input type="file" accept=".json" class="hidden" onchange="importJSON(this)"></label></div></div>
+ <div class="card"><h2>Settings</h2><div class="grid" style="margin-top:12px">
+ <label class="f">Rabbi (agent) name<input type="text" id="s_rabbi" value="${esc(settings.rabbi)}"></label>
+ <label class="f">Shul name<input type="text" id="s_shul" value="${esc(settings.shul)}"></label>
+ <label class="f">Shul e-mail<input type="email" id="s_shulEmail" value="${esc(settings.shulEmail)}"></label>
+ <label class="f">Admin code<input type="text" id="s_pin" value="${esc(settings.pin)}"></label>
+ <label class="f">Deadline text (shown on home)<input type="text" id="s_deadline" value="${esc(settings.deadline)}" placeholder="e.g. Sunday night, 10 PM"></label>
+ <label class="f">Donation prompt (blank = hidden)<input type="text" id="s_donation" value="${esc(settings.donation)}" placeholder="e.g. Ma'os Chittim donation"></label>
+ <label class="opt full"><input type="checkbox" id="s_showHebrew" ${settings.showHebrew?"checked":""}><div class="t">Include Hebrew harsha'ah paragraph on the shtar</div></label>
+ </div><button class="btn" style="margin-top:10px" onclick="saveSettings()">Save settings</button></div>`;
+ $("#aq").oninput=e=>{aq=e.target.value;const p=e.target.selectionStart;Admin();const n=$("#aq");n.focus();n.setSelectionRange(p,p)};
+ $("#ay").onchange=e=>{ay=e.target.value;Admin()}}
+function saveSettings(){["rabbi","shul","shulEmail","pin","deadline","donation"].forEach(k=>settings[k]=$("#s_"+k).value.trim());settings.showHebrew=$("#s_showHebrew").checked;if(!settings.pin)settings.pin=defaultSettings.pin;LS.set("mc_settings",settings);hdr();toast("Settings saved")}
+function viewRec(id){const r=records().find(x=>x.id===id);F=Object.assign(blank(),r);screen="done";render()}
+function delRec(id){if(!confirm("Delete this submission permanently from this device?"))return;saveRecords(records().filter(r=>r.id!==id));Admin()}
+function printAll(){const rs=records().filter(r=>ay==="all"||String(r.year)===ay);$("#app").innerHTML=`<div class="noprint card row"><button class="btn" onclick="window.print()">🖨 Print</button><button class="btn ghost" onclick="Admin()">← Back</button></div>`+rs.map(r=>`<div class="card printpage"><div class="shtar">${shtarHTML(Object.assign(blank(),r),false)}</div></div>`).join("")}
+function dl(name,text,type){const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([text],{type}));a.download=name;a.click()}
+function exportJSON(){dl("mechiras-chometz-backup.json",JSON.stringify({settings,records:records()},null,1),"application/json")}
+function exportCSV(){const cols=["id","year","date","first","last","address","city","state","phone","email","places","placeOther","more","moreOther","zone","products","affixed","productOther","value","home","keyPlace","combo","bedika","bedikaText","mechira","donation"];
+ const v=(r,c)=>c==="mechira"?mechiraType(r):c==="more"?Object.entries(r.more||{}).map(([k,a])=>k+": "+a).join("; "):Array.isArray(r[c])?r[c].join("; "):r[c]??"";
+ dl("mechiras-chometz.csv",[cols.join(",")].concat(records().map(r=>cols.map(c=>`"${String(v(r,c)).replace(/"/g,'""')}"`).join(","))).join("\n"),"text/csv")}
+function importJSON(inp){const f=inp.files[0];if(!f)return;f.text().then(t=>{const d=JSON.parse(t);const inc=(d.records||d).map(x=>Object.assign(blank(),x));const r=records();let n=0;inc.forEach(x=>{if(!r.some(y=>y.id===x.id)){r.push(x);n++}});saveRecords(r);toast(`Imported ${n} record(s)`);Admin()}).catch(()=>toast("Invalid file"))}
+
+/* ===================== Init ===================== */
+document.addEventListener("keydown",e=>{if(e.key==="Escape")closeModal()});
+// Opening the app fresh always starts as a new user (requested in 2018)
+</script>
+<script>
+/* ===================== Cloud overrides (shared DB via API) ===================== */
+const API=(window.API_BASE||"").replace(/\/$/,"");
+let CACHE=[],EDIT_TOKEN=null;
+const adminTok=()=>sessionStorage.getItem("mc_admin_tok");
+async function api(path,opt={}){const h={"Content-Type":"application/json"};if(opt.admin&&adminTok())h.Authorization="Bearer "+adminTok();
+ const r=await fetch(API+path,{method:opt.method||"GET",headers:h,body:opt.body?JSON.stringify(opt.body):undefined});let d={};try{d=await r.json()}catch(e){}
+ if(r.status===401&&opt.admin){sessionStorage.removeItem("mc_admin_tok");adminOK=false}
+ if(!r.ok)throw new Error(d.error||("Error "+r.status));return d}
+records=function(){return CACHE};
+saveRecords=function(){};
+(async()=>{try{Object.assign(settings,await api("/api/settings"));hdr();if(screen==="home")render()}catch(e){console.warn(e)}})();
+Lookup=function(){
+ $("#app").innerHTML=`<div class="card"><h2>Welcome back!</h2><p class="sub">Enter the e-mail (or username) you used last time and your last name to load your information.</p>
+ <div class="grid"><label class="f">E-mail / username<input type="text" id="lk" autocomplete="email"></label><label class="f">Last name<input type="text" id="lkl" autocomplete="family-name"></label></div>
+ <div class="row" style="margin-top:14px"><button class="btn" id="lkb" onclick="doLookup()">Find my info</button><button class="btn ghost" onclick="goHome()">Cancel</button></div></div>`;
+ $("#lk").focus();$("#lkl").onkeydown=e=>{if(e.key==="Enter")doLookup()}};
+doLookup=async function(){const email=$("#lk").value.trim(),last=$("#lkl").value.trim();if(!email||!last){toast("Enter e-mail and last name");return}
+ $("#lkb").disabled=true;try{const d=await api("/api/lookup",{method:"POST",body:{email,last}});EDIT_TOKEN=d.token;
+  F=Object.assign(blank(),d.record,{id:"",sig:"",kinyan:false,date:"",year:""});step=0;screen="form";toast("Welcome back "+(d.record.first||"")+"! Please review each page.");render()}
+ catch(e){toast(e.message==="Not found"?"Not found. Check spelling or start a new form.":e.message);$("#lkb").disabled=false}};
+const _blank=blank;startNew=function(){EDIT_TOKEN=null;F=blank();step=0;screen="form";render()};
+submitForm=async function(){const e=validate(5);if(e){toast(e);return}
+ F.date=today();F.year=pesachYear();const btn=document.querySelector("#navin .gold");if(btn){btn.disabled=true;btn.textContent="Submitting…"}
+ try{const d=await api("/api/submit",{method:"POST",body:{record:F,token:EDIT_TOKEN}});F.id=d.id;EDIT_TOKEN=d.token;screen="done";render()}
+ catch(err){toast("Could not submit: "+err.message+". Check your connection and try again.");if(btn){btn.disabled=false;btn.textContent="Review & Submit"}}};
+newUser=function(){EDIT_TOKEN=null;F=blank();step=0;screen="home";render()};
+goHome=function(){if(screen==="form"&&(F.first||F.email)&&!confirm("Leave and clear this form? (Nothing will be saved.)"))return;EDIT_TOKEN=null;F=blank();step=0;screen=adminTok()&&screen==="admin"?"home":"home";render()};
+Pin=function(){$("#app").innerHTML=`<div class="card"><h2>Shul / Rabbi sign-in</h2><p class="sub">Admin password (verified on the server).</p>
+ <label class="f">Password<input type="password" id="pin" autocomplete="current-password"></label><div class="row" style="margin-top:14px"><button class="btn dark" onclick="chkPin()">Sign in</button><button class="btn ghost" onclick="goHome()">Cancel</button></div></div>`;
+ $("#pin").focus();$("#pin").onkeydown=e=>{if(e.key==="Enter")chkPin()}};
+chkPin=async function(){try{const d=await api("/api/admin/login",{method:"POST",body:{password:$("#pin").value}});sessionStorage.setItem("mc_admin_tok",d.token);adminOK=true;screen="admin";render()}catch(e){toast(e.message)}};
+const _Admin=Admin;
+Admin=function(){if(!adminTok()){screen="pin";return Pin()}_Admin();const pin=document.getElementById("s_pin");if(pin)pin.closest("label").remove();
+ const so=[...document.querySelectorAll("button")].find(b=>b.textContent==="Sign out");if(so)so.onclick=()=>{sessionStorage.removeItem("mc_admin_tok");adminOK=false;CACHE=[];goHome()};
+ const rf=document.createElement("button");rf.className="btn ghost sm";rf.textContent="⟳ Refresh";rf.onclick=loadAdmin;so&&so.before(rf)};
+async function loadAdmin(){try{CACHE=await api("/api/admin/records",{admin:true});if(screen==="admin")Admin()}catch(e){toast(e.message);if(!adminTok()){screen="pin";render()}}}
+const _render=render;render=function(){_render();if(screen==="admin"&&adminTok()&&!render._loading){render._loading=true;loadAdmin().finally(()=>render._loading=false)}};
+saveSettings=async function(){["rabbi","shul","shulEmail","deadline","donation"].forEach(k=>settings[k]=$("#s_"+k).value.trim());settings.showHebrew=$("#s_showHebrew").checked;
+ try{await api("/api/admin/settings",{method:"PUT",admin:true,body:settings});hdr();toast("Settings saved")}catch(e){toast(e.message)}};
+delRec=async function(id){if(!confirm("Delete this submission permanently from the shared database?"))return;try{await api("/api/admin/records/"+encodeURIComponent(id),{method:"DELETE",admin:true});CACHE=CACHE.filter(r=>r.id!==id);Admin()}catch(e){toast(e.message)}};
+viewRec=function(id){const r=CACHE.find(x=>x.id===id);F=Object.assign(blank(),r);screen="done";_render();const b=[...document.querySelectorAll("button")].find(x=>x.textContent.includes("Edit"));if(b)b.remove();const n=[...document.querySelectorAll("button")].find(x=>x.textContent.includes("New user"));if(n){n.textContent="← Back to admin";n.onclick=()=>{screen="admin";render()}}};
+importJSON=function(inp){const f=inp.files[0];if(!f)return;f.text().then(async t=>{const d=JSON.parse(t);const r=await api("/api/admin/import",{method:"POST",admin:true,body:{records:d.records||d}});toast(`Imported ${r.imported} record(s)`);loadAdmin()}).catch(e=>toast("Import failed: "+e.message))};
+if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));
+
+render();
+</script>
+</body>
+</html>
